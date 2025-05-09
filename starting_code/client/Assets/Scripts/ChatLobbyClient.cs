@@ -117,6 +117,7 @@ public class ChatLobbyClient : MonoBehaviour
             // Generate a random skin ID between 0-3
             int newSkin = UnityEngine.Random.Range(0, 4);
             ChangeSkinRequest skinRequest = new ChangeSkinRequest { NewSkin = newSkin };
+            Debug.Log("Changing skin to: " + newSkin);
             sendObject(skinRequest);
         }
         else if (pText.StartsWith("/whisper "))

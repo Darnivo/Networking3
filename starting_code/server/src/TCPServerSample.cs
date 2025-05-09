@@ -154,6 +154,12 @@ class TCPServerSample
                             }
                         }
                     }
+                    else if (received is ChangeSkinRequest skinRequest)     // CLIENT CHANGES SKIN
+                    {
+                        clientState.Skin = skinRequest.NewSkin;
+                        
+                        BroadcastAvatarUpdate();
+                    }
                 }
                 catch (IOException)
                 {
