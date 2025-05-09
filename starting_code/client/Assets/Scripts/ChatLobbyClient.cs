@@ -112,8 +112,14 @@ public class ChatLobbyClient : MonoBehaviour
     private void onChatTextEntered(string pText)
     {
         _panelWrapper.ClearInput();
-
-        if (pText.StartsWith("/whisper "))
+        if (pText == "/skin")
+        {
+            // Generate a random skin ID between 0-3
+            int newSkin = UnityEngine.Random.Range(0, 4);
+            ChangeSkinRequest skinRequest = new ChangeSkinRequest { NewSkin = newSkin };
+            sendObject(skinRequest);
+        }
+        else if (pText.StartsWith("/whisper "))
         {
             string message = pText.Substring(9); //snip out the command text
             WhisperMessage whisper = new WhisperMessage
@@ -183,6 +189,9 @@ public class ChatLobbyClient : MonoBehaviour
                             AvatarView view = _avatarAreaManager.GetAvatarView(avatar.Id);
                             view.SetSkin(avatar.Skin);
                             view.Move(new Vector3(avatar.X, avatar.Y, avatar.Z));
+                            
+                            // Show ring only for our own avatar
+                            view.ShowRing(avatar.Id == _myAvatarId);
                         }
                         else 
                         {
@@ -190,6 +199,9 @@ public class ChatLobbyClient : MonoBehaviour
                             AvatarView view = _avatarAreaManager.AddAvatarView(avatar.Id);
                             view.SetSkin(avatar.Skin);
                             view.Move(new Vector3(avatar.X, avatar.Y, avatar.Z));
+                            
+                            // Show ring only for our own avatar
+                            view.ShowRing(avatar.Id == _myAvatarId);
                         }
                     }
 

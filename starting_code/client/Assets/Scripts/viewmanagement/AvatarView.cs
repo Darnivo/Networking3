@@ -113,4 +113,13 @@ public class AvatarView : MonoBehaviour
         _animator.speed = _moving ? moveSpeed : 1;
     }
 
+    public void ShowRing(bool visible)
+    {
+        Transform ring = transform.Find("SelectionRing");
+        if (ring != null)
+        {
+            ring.gameObject.SetActive(visible);
+        }
+    }
+
 }
