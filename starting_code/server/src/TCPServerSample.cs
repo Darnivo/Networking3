@@ -10,12 +10,30 @@ class TCPServerSample
 {
 
     // new client stuff
-    class ClientState
+    class ClientState : ISerializable
     {
         public TcpClient Client;
         public int AvatarId;
         public float X, Y, Z;  // Changed from Position
         public int Skin;
+
+        public void Serialize(Packet pPacket)
+        {
+            pPacket.Write(AvatarId);
+            pPacket.Write(Skin);
+            pPacket.Write(X);
+            pPacket.Write(Y);
+            pPacket.Write(Z);
+        }
+
+        public void Deserialize(Packet pPacket)
+        {
+            AvatarId = pPacket.ReadInt();
+            Skin = pPacket.ReadInt();
+            X = pPacket.ReadFloat();
+            Y = pPacket.ReadFloat();
+            Z = pPacket.ReadFloat();
+        }
     }
 
     private List<ClientState> _clientStates = new List<ClientState>();
@@ -77,7 +95,7 @@ class TCPServerSample
                     Packet packet = new Packet(bytes);
                     ISerializable received = packet.ReadObject();
 
-                    if (received is ClientJoinRequest)
+                    if (received is ClientJoinRequest)                  // > CLIENT JOINS
                     {
                         clientState.AvatarId = _nextAvatarId++;
                         clientState.Skin = new Random().Next(0, 1000);
@@ -97,16 +115,15 @@ class TCPServerSample
 
                         BroadcastAvatarUpdate();
                     }
-                    else if (received is ChatMessage chat)
+                    else if (received is ChatMessage chat)          // CLIENT SENDS MESSAGE
                     {
                         chat.SenderId = clientState.AvatarId;
                         Broadcast(chat);
                     }
-                    else if (received is AvatarMoveRequest moveRequest)
+                    else if (received is AvatarMoveRequest moveRequest)     // CLIENT MOVES
                     {
                         // Validate position (radius 20)
-                        float distance = MathF.Sqrt(moveRequest.X * moveRequest.X + moveRequest.Z * moveRequest.Z);
-                        if (distance <= 20)
+                        if (IsPositionValid(moveRequest.X, moveRequest.Z))
                         {
                             clientState.X = moveRequest.X;
                             clientState.Y = moveRequest.Y;
@@ -118,6 +135,25 @@ class TCPServerSample
                             Console.WriteLine($"Invalid position {moveRequest.X}, {moveRequest.Z}");
                         }
                     }
+                    else if (received is WhisperMessage whisper)        // CLIENT WHISPERS
+                    {
+                        foreach (ClientState recipient in _clientStates)
+                        {
+                            float distance = MathF.Sqrt(
+                                (whisper.SenderX - recipient.X) * (whisper.SenderX - recipient.X) +
+                                (whisper.SenderZ - recipient.Z) * (whisper.SenderZ - recipient.Z)
+                            );
+                            
+                            if (distance <= 2)
+                            {
+                                Send(recipient.Client, new ChatMessage
+                                {
+                                    SenderId = whisper.SenderId,
+                                    Text = whisper.Text
+                                });
+                            }
+                        }
+                    }
                 }
                 catch (IOException)
                 {
@@ -125,6 +161,12 @@ class TCPServerSample
                 }
             }
         }
+    }
+
+    private bool IsPositionValid(float x, float z)
+    {
+        float distanceFromCenter = MathF.Sqrt(x * x + z * z);
+        return distanceFromCenter <= 20; // Town radius 20 units like in AvatarAreaManager
     }
 
     // > send packet

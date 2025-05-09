@@ -112,7 +112,24 @@ public class ChatLobbyClient : MonoBehaviour
     private void onChatTextEntered(string pText)
     {
         _panelWrapper.ClearInput();
-        sendChatMessage(pText);
+
+        if (pText.StartsWith("/whisper "))
+        {
+            string message = pText.Substring(9); //snip out the command text
+            WhisperMessage whisper = new WhisperMessage
+            {
+                SenderId = _myAvatarId,
+                Text = message,
+                SenderX = _avatarAreaManager.GetAvatarView(_myAvatarId).transform.position.x,
+                SenderY = _avatarAreaManager.GetAvatarView(_myAvatarId).transform.position.y,
+                SenderZ = _avatarAreaManager.GetAvatarView(_myAvatarId).transform.position.z
+            };
+            sendObject(whisper);
+        }
+        else
+        {
+            sendChatMessage(pText);
+        }
     }
 
     // > replaced SendString, this uses objs
