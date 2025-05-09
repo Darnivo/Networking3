@@ -1,5 +1,6 @@
 ﻿using shared;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
@@ -26,9 +27,16 @@ public class ChatLobbyClient : MonoBehaviour
 
     private TcpClient _client;
 
+
+    // > allow for waiting for server to start
+    private float _reconnectDelay = 3f;
+    private bool _connected = false;
+    private Coroutine _connectionCoroutine;
+
     private void Start()
     {
-        connectToServer();
+        // connectToServer();
+        StartConnectionLoop();
 
         //register for the important events
         _avatarAreaManager = FindFirstObjectByType<AvatarAreaManager>();
@@ -38,19 +46,52 @@ public class ChatLobbyClient : MonoBehaviour
         _panelWrapper.OnChatTextEntered += onChatTextEntered;
     }
 
+    private void StartConnectionLoop()
+    {
+        if (_connectionCoroutine == null)
+        {
+            _connectionCoroutine = StartCoroutine(ConnectionLoop());
+        }
+    }
+
+     private IEnumerator ConnectionLoop()
+    {
+        while (!_connected)
+        {
+            Debug.Log("Attempting to connect to server...");
+            connectToServer();
+            yield return new WaitForSeconds(_reconnectDelay);
+        }
+    }
+
     private void connectToServer()
     {
+        if (_connected) return;
+
         try
         {
+            if (_client != null) _client.Close();
+            
             _client = new TcpClient();
-            _client.Connect(_server, _port);
-            Debug.Log("Connected to server.");
-            sendObject(new ClientJoinRequest());
+            _client.ConnectAsync(_server, _port).Wait(1000); // Wait with timeout
+            
+            if (_client.Connected)
+            {
+                _connected = true;
+                Debug.Log("Connected to server!");
+                sendObject(new ClientJoinRequest());
+                if (_connectionCoroutine != null)
+                {
+                    StopCoroutine(_connectionCoroutine);
+                    _connectionCoroutine = null;
+                }
+            }
         }
         catch (Exception e)
         {
-            Debug.Log("Could not connect to server:");
-            Debug.Log(e.Message);
+            Debug.Log($"Connection failed: {e.Message}");
+            _client?.Close();
+            _connected = false;
         }
     }
 
@@ -182,4 +223,11 @@ public class ChatLobbyClient : MonoBehaviour
         avatarView.Say(pText);
     }
 
+    private void OnDestroy()
+    {
+        if (_client != null)
+        {
+            _client.Close();
+        }
+    }
 }
