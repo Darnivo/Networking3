@@ -59,37 +59,69 @@ class TCPServerSample
     {
         foreach (ClientState clientState in _clientStates.ToList())
         {
+            TcpClient client = clientState.Client;
+            // Check if client disconnected
+            if (!IsClientConnected(client))
+            {
+                handleClientDisconnect(clientState);
+                continue;
+            }
+
+
             NetworkStream stream = clientState.Client.GetStream();
             if (stream.DataAvailable)
             {
-                byte[] bytes = StreamUtil.Read(stream);
-                Packet packet = new Packet(bytes);
-                ISerializable received = packet.ReadObject();
-
-                if (received is ClientJoinRequest)
+                try
                 {
-                    clientState.AvatarId = _nextAvatarId++;
-                    clientState.Skin = new Random().Next(0, 1000);
-                    var position = GetValidPosition();
-                    clientState.X = position.X;
-                    clientState.Y = position.Y;
-                    clientState.Z = position.Z;
+                    byte[] bytes = StreamUtil.Read(stream);
+                    Packet packet = new Packet(bytes);
+                    ISerializable received = packet.ReadObject();
 
-                    Send(clientState.Client, new AvatarInfoMessage
+                    if (received is ClientJoinRequest)
                     {
-                        Id = clientState.AvatarId,
-                        Skin = clientState.Skin,
-                        X = clientState.X,
-                        Y = clientState.Y,
-                        Z = clientState.Z
-                    });
+                        clientState.AvatarId = _nextAvatarId++;
+                        clientState.Skin = new Random().Next(0, 1000);
+                        var position = GetValidPosition();
+                        clientState.X = position.X;
+                        clientState.Y = position.Y;
+                        clientState.Z = position.Z;
 
-                    BroadcastAvatarUpdate();
+                        Send(clientState.Client, new AvatarInfoMessage
+                        {
+                            Id = clientState.AvatarId,
+                            Skin = clientState.Skin,
+                            X = clientState.X,
+                            Y = clientState.Y,
+                            Z = clientState.Z
+                        });
+
+                        BroadcastAvatarUpdate();
+                    }
+                    else if (received is ChatMessage chat)
+                    {
+                        chat.SenderId = clientState.AvatarId;
+                        Broadcast(chat);
+                    }
+                    else if (received is AvatarMoveRequest moveRequest)
+                    {
+                        // Validate position (radius 20)
+                        float distance = MathF.Sqrt(moveRequest.X * moveRequest.X + moveRequest.Z * moveRequest.Z);
+                        if (distance <= 20)
+                        {
+                            clientState.X = moveRequest.X;
+                            clientState.Y = moveRequest.Y;
+                            clientState.Z = moveRequest.Z;
+                            BroadcastAvatarUpdate();
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Invalid position {moveRequest.X}, {moveRequest.Z}");
+                        }
+                    }
                 }
-                else if (received is ChatMessage chat)
+                catch (IOException)
                 {
-                    chat.SenderId = clientState.AvatarId;
-                    Broadcast(chat);
+                    handleClientDisconnect(clientState);
                 }
             }
         }
@@ -146,5 +178,18 @@ class TCPServerSample
         float angle = new Random().Next(0, 360) * MathF.PI / 180f;
         float distance = new Random().Next(0, 10);
         return (MathF.Cos(angle) * distance, 0, MathF.Sin(angle) * distance);
+    }
+
+    private bool IsClientConnected(TcpClient client)
+    {
+        return client.Connected && (client.Client.Poll(1000, SelectMode.SelectRead) ? client.Client.Available > 0 : true);
+    }
+
+    private void handleClientDisconnect(ClientState clientState)
+    {
+        _clientStates.Remove(clientState);
+        clientState.Client.Close();
+        Console.WriteLine($"Client {clientState.AvatarId} disconnected.");
+        BroadcastAvatarUpdate(); // Notify all clients to remove the avatar
     }
 }

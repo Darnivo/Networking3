@@ -45,6 +45,7 @@ public class ChatLobbyClient : MonoBehaviour
             _client = new TcpClient();
             _client.Connect(_server, _port);
             Debug.Log("Connected to server.");
+            sendObject(new ClientJoinRequest());
         }
         catch (Exception e)
         {
@@ -57,6 +58,14 @@ public class ChatLobbyClient : MonoBehaviour
     {
         Debug.Log("ChatLobbyClient: you clicked on " + pClickPosition);
         //TODO pass data to the server so that the server can send a position update to all clients (if the position is valid!!)
+
+        AvatarMoveRequest moveRequest = new AvatarMoveRequest
+        {
+            X = pClickPosition.x,
+            Y = pClickPosition.y,
+            Z = pClickPosition.z
+        };
+        sendObject(moveRequest);
     }
 
     private void onChatTextEntered(string pText)
@@ -103,12 +112,36 @@ public class ChatLobbyClient : MonoBehaviour
                 
                 if (received is AvatarUpdateMessage update) 
                 {
-                    _avatarAreaManager.ClearAvatars();
+                    List<int> existingIds = _avatarAreaManager.GetAllAvatarIds();
+                    List<int> receivedIds = new List<int>();
+
                     foreach (var avatar in update.Avatars) 
                     {
-                        AvatarView view = _avatarAreaManager.AddAvatarView(avatar.Id);
-                        view.SetSkin(avatar.Skin);
-                        view.Move(new Vector3(avatar.X, avatar.Y, avatar.Z));
+                        receivedIds.Add(avatar.Id);
+                        
+                        if (_avatarAreaManager.HasAvatarView(avatar.Id))
+                        {
+                            // Update existing avatar
+                            AvatarView view = _avatarAreaManager.GetAvatarView(avatar.Id);
+                            view.SetSkin(avatar.Skin);
+                            view.Move(new Vector3(avatar.X, avatar.Y, avatar.Z));
+                        }
+                        else 
+                        {
+                            // Add new avatar
+                            AvatarView view = _avatarAreaManager.AddAvatarView(avatar.Id);
+                            view.SetSkin(avatar.Skin);
+                            view.Move(new Vector3(avatar.X, avatar.Y, avatar.Z));
+                        }
+                    }
+
+                    // Remove avatars that are no longer present
+                    foreach (int existingId in existingIds)
+                    {
+                        if (!receivedIds.Contains(existingId))
+                        {
+                            _avatarAreaManager.RemoveAvatarView(existingId);
+                        }
                     }
                 }
                 else if (received is ChatMessage chat) 
