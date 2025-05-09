@@ -17,6 +17,10 @@ public class ChatLobbyClient : MonoBehaviour
     //reference to the helper class that wraps the chat interface
     private PanelWrapper _panelWrapper;
 
+
+    // > new id for clients
+    private int _myAvatarId = -1;
+
     [SerializeField] private string _server = "localhost";
     [SerializeField] private int _port = 55555;
 
@@ -58,40 +62,64 @@ public class ChatLobbyClient : MonoBehaviour
     private void onChatTextEntered(string pText)
     {
         _panelWrapper.ClearInput();
-        sendString(pText);
+        sendChatMessage(pText);
     }
 
-    private void sendString(string pOutString)
+    // > replaced SendString, this uses objs
+    private void sendChatMessage(string pText) 
     {
-        try
+        ChatMessage message = new ChatMessage { SenderId = _myAvatarId, Text = pText };
+        sendObject(message);
+    }
+
+    private void sendObject(ISerializable pObject) 
+    {
+        try 
         {
-            //we are still communicating with strings at this point, this has to be replaced with either packet or object communication
-            Debug.Log("Sending:" + pOutString);
-            byte[] outBytes = Encoding.UTF8.GetBytes(pOutString);
-            StreamUtil.Write(_client.GetStream(), outBytes);
-        }
-        catch (Exception e)
+            Packet packet = new Packet();
+            packet.Write(pObject);
+            byte[] bytes = packet.GetBytes();
+            StreamUtil.Write(_client.GetStream(), bytes);
+        } 
+        catch (Exception e) 
         {
-            //for quicker testing, we reconnect if something goes wrong.
+            /* error handling code */  
             Debug.Log(e.Message);
             _client.Close();
             connectToServer();
         }
     }
 
-    // RECEIVING CODE
-
+    // > modified() update to use the new packet system
     private void Update()
     {
         try
         {
-            if (_client.Available > 0)
+            if (_client.Available > 0) 
             {
-                //we are still communicating with strings at this point, this has to be replaced with either packet or object communication
-                byte[] inBytes = StreamUtil.Read(_client.GetStream());
-                string inString = Encoding.UTF8.GetString(inBytes);
-                Debug.Log("Received:" + inString);
-                showMessage(inString);
+                byte[] bytes = StreamUtil.Read(_client.GetStream());
+                Packet packet = new Packet(bytes);
+                ISerializable received = packet.ReadObject();
+                
+                if (received is AvatarUpdateMessage update) 
+                {
+                    _avatarAreaManager.ClearAvatars();
+                    foreach (var avatar in update.Avatars) 
+                    {
+                        AvatarView view = _avatarAreaManager.AddAvatarView(avatar.Id);
+                        view.SetSkin(avatar.Skin);
+                        view.Move(new Vector3(avatar.X, avatar.Y, avatar.Z));
+                    }
+                }
+                else if (received is ChatMessage chat) 
+                {
+                    AvatarView avatar = _avatarAreaManager.GetAvatarView(chat.SenderId);
+                    if (avatar != null) avatar.Say(chat.Text);
+                }
+                else if (received is AvatarInfoMessage info) 
+                {
+                    _myAvatarId = info.Id; // Store our own ID
+                }
             }
         }
         catch (Exception e)

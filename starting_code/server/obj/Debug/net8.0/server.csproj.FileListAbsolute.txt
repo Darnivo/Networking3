@@ -34,3 +34,12 @@ D:\Dropbox\HW\saxion\courses_cmgt\2_3_networking\003_assignments\A3_minitown\A3_
 D:\Dropbox\HW\saxion\courses_cmgt\2_3_networking\003_assignments\A3_minitown\A3_mini_town\starting_code\server\obj\Debug\net8.0\server.pdb
 D:\Dropbox\HW\saxion\courses_cmgt\2_3_networking\003_assignments\A3_minitown\A3_mini_town\starting_code\server\obj\Debug\net8.0\server.genruntimeconfig.cache
 D:\Dropbox\HW\saxion\courses_cmgt\2_3_networking\003_assignments\A3_minitown\A3_mini_town\starting_code\server\obj\Debug\net8.0\ref\server.dll
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\server\obj\Debug\net8.0\server.csproj.AssemblyReference.cache
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\server\obj\Debug\net8.0\server.GeneratedMSBuildEditorConfig.editorconfig
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\server\obj\Debug\net8.0\server.AssemblyInfoInputs.cache
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\server\obj\Debug\net8.0\server.AssemblyInfo.cs
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\server\obj\Debug\net8.0\server.csproj.CoreCompileInputs.cache
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\server\obj\Debug\net8.0\server.sourcelink.json
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\server\obj\Debug\net8.0\server.dll
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\server\obj\Debug\net8.0\refint\server.dll
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\server\obj\Debug\net8.0\server.pdb

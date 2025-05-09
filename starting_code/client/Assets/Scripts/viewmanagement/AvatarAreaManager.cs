@@ -138,4 +138,16 @@ public class AvatarAreaManager : MonoBehaviour
         }
     }
 
+    
+    // > wipe avatars by id
+    public void ClearAvatars()
+    {
+        // Remove all avatars by iterating through existing IDs
+        List<int> allAvatarIds = GetAllAvatarIds();
+        foreach (int avatarId in allAvatarIds)
+        {
+            RemoveAvatarView(avatarId);
+        }
+    }
+
 }

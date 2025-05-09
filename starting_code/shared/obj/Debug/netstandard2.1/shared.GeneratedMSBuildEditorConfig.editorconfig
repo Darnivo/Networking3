@@ -1,6 +1,6 @@
 is_global = true
 build_property.RootNamespace = shared
-build_property.ProjectDir = D:\Dropbox\HW\saxion\courses_cmgt\2_3_networking\003_assignments\A3_minitown\A3_mini_town\starting_code\shared\
+build_property.ProjectDir = D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false

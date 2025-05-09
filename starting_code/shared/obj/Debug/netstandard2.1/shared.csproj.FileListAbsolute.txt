@@ -16,3 +16,13 @@ D:\Dropbox\HW\saxion\courses_cmgt\2_3_networking\003_assignments\A3_minitown\A3_
 D:\Dropbox\HW\saxion\courses_cmgt\2_3_networking\003_assignments\A3_minitown\A3_mini_town\starting_code\shared\obj\Debug\netstandard2.1\shared.csproj.CoreCompileInputs.cache
 D:\Dropbox\HW\saxion\courses_cmgt\2_3_networking\003_assignments\A3_minitown\A3_mini_town\starting_code\shared\obj\Debug\netstandard2.1\shared.dll
 D:\Dropbox\HW\saxion\courses_cmgt\2_3_networking\003_assignments\A3_minitown\A3_mini_town\starting_code\shared\obj\Debug\netstandard2.1\shared.pdb
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\obj\Debug\netstandard2.1\shared.GeneratedMSBuildEditorConfig.editorconfig
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\obj\Debug\netstandard2.1\shared.AssemblyInfoInputs.cache
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\obj\Debug\netstandard2.1\shared.AssemblyInfo.cs
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\obj\Debug\netstandard2.1\shared.csproj.CoreCompileInputs.cache
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\obj\Debug\netstandard2.1\shared.sourcelink.json
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\obj\Debug\netstandard2.1\shared.dll
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\obj\Debug\netstandard2.1\shared.pdb
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\bin\Debug\netstandard2.1\shared.deps.json
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\bin\Debug\netstandard2.1\shared.dll
+D:\Saxion\Networking\A3_mini_town\Networking3\starting_code\shared\bin\Debug\netstandard2.1\shared.pdb
